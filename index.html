@@ -107,12 +107,206 @@ function updateCountdown(){const now=new Date(),next=new Date(now);next.setSecon
 function previewResearchRoute(x){const s=x.symbol.toUpperCase();if(["BTC","SOL"].includes(s))return ["V6 OFICIAL","OFICIAL"];const cap=Number(x.market_cap||0),vol=Number(x.total_volume||0),move=Math.abs(Number(x.price_change_percentage_24h||0)),turn=cap>0?vol/cap:0;if(!cap||!vol)return ["DATOS INCOMPLETOS","WATCH"];if(move>=8&&turn>=.08)return ["MOMENTUM","RESEARCH"];if(move>=4&&turn>=.04)return ["BREAKOUT","RESEARCH"];if(move<=1.5&&Number(x.market_cap_rank||999)<=50&&turn>=.015)return ["MEAN REVERSION","RESEARCH"];return ["TREND","RESEARCH"];}
 function renderScanner(){const body=document.getElementById("scannerBody"),status=document.getElementById("scannerStatus");if(!state.sandbox){status.textContent="Inicia el Sandbox para ejecutar el scanner.";body.innerHTML="";return}if(!marketRows.length){status.textContent="Carga primero el Top 500.";body.innerHTML="";return}const routed=marketRows.map(x=>{const [family,route]=previewResearchRoute(x),cap=Number(x.market_cap||0),vol=Number(x.total_volume||0);return {...x,_family:family,_route:route,_turn:cap>0?vol/cap*100:0}}).slice(0,100);document.getElementById("scanAssets").textContent=marketRows.length;document.getElementById("scanMomentum").textContent=routed.filter(x=>x._family==="MOMENTUM").length;document.getElementById("scanBreakout").textContent=routed.filter(x=>x._family==="BREAKOUT").length;document.getElementById("scanTrend").textContent=routed.filter(x=>x._family==="TREND").length;status.textContent="Preview: router de research ejecutado. Verificación Bitget solo en la app real.";body.innerHTML=routed.map(x=>'<tr><td>'+x.market_cap_rank+'</td><td>'+x.name+' ('+x.symbol.toUpperCase()+')</td><td>'+((x.price_change_percentage_24h==null)?"—":x.price_change_percentage_24h.toFixed(2)+"%")+'</td><td>'+x._turn.toFixed(2)+'%</td><td>'+x._family+'</td><td>'+x._route+'</td></tr>').join("")}
 let marketRows=[];
-function populateHoldingAssets(){const sel=document.getElementById("holdingAsset");if(!sel)return;const previous=sel.value;if(!marketRows.length){sel.innerHTML='<option value="">Carga Top 500 primero</option>';return}sel.innerHTML=marketRows.map(x=>'<option value="'+x.id+'">#'+(x.market_cap_rank||"—")+' · '+x.symbol.toUpperCase()+' · '+x.name+'</option>').join("");if([...sel.options].some(o=>o.value===previous))sel.value=previous}
-function renderPortfolioPreview(){const prices=new Map(marketRows.map(x=>[x.id,Number(x.current_price)]));let value=0,pnl=0;const rows=(state.holdings||[]).map(item=>{const price=prices.has(item.id)?prices.get(item.id):null;const marketValue=price==null?null:Number(item.qty||0)*price;const cost=Number(item.qty||0)*Number(item.avg||0);const itemPnl=marketValue==null?null:marketValue-cost;if(marketValue!=null){value+=marketValue;pnl+=itemPnl}return {...item,price,marketValue,pnl:itemPnl}});const equity=Number(state.cash||0)+value;const e=document.getElementById("portfolioEquity"),hv=document.getElementById("holdingsValue"),pp=document.getElementById("portfolioPnl"),status=document.getElementById("holdingStatus"),list=document.getElementById("holdingList");if(e)e.textContent=equity.toLocaleString(undefined,{maximumFractionDigits:2});if(hv)hv.textContent=value.toLocaleString(undefined,{maximumFractionDigits:2});if(pp){pp.textContent=pnl.toLocaleString(undefined,{maximumFractionDigits:2});pp.style.color=pnl>0?"#61e0ae":pnl<0?"#ff7b8f":""}if(status)status.textContent=rows.length?rows.length+" posiciones · "+(marketRows.length?"precios públicos cargados":"carga Top 500 para valorar"):"Sin posiciones.";if(list)list.innerHTML=rows.map(x=>'<div class="gate"><span><b>'+x.symbol+'</b> · '+Number(x.qty).toLocaleString(undefined,{maximumFractionDigits:8})+'<br><span class="muted">'+x.name+' · medio {const status=document.getElementById("marketStatus"),body=document.getElementById("marketBody");status.textContent="Cargando Top 500…";body.innerHTML="";try{const pages=await Promise.all([1,2].map(page=>fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page="+page+"&sparkline=false&price_change_percentage=24h").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})));marketRows=pages.flat();status.textContent=marketRows.length+" activos cargados · datos públicos";populateHoldingAssets();renderMarket();renderPortfolioPreview()}catch(e){status.textContent="No se pudo cargar ahora: "+e.message}}
-function renderMarket(){const q=document.getElementById("marketSearch").value.trim().toLowerCase();const rows=marketRows.filter(x=>!q||x.name.toLowerCase().includes(q)||x.symbol.toLowerCase().includes(q)).slice(0,100);document.getElementById("marketBody").innerHTML=rows.map(x=>{const s=x.symbol.toUpperCase(),strategy=["BTC","SOL"].includes(s)?"V6 OFICIAL":(state.assignments[s]||"SIN ASIGNAR"),chg=x.price_change_percentage_24h==null?"—":x.price_change_percentage_24h.toFixed(2)+"%";return '<tr><td>'+x.market_cap_rank+'</td><td>'+x.name+'</td><td>'+s+'</td><td>
-window.addWatch=s=>{if(!state.watchlist.includes(s))state.watchlist.push(s);if(!state.assignments[s])state.assignments[s]="UNASSIGNED";if(state.allocations[s]==null)state.allocations[s]=0;persist();renderMarket()};document.getElementById("loadMarket").onclick=loadMarket;document.getElementById("marketSearch").oninput=renderMarket;document.getElementById("runScanner").onclick=renderScanner;
-let deferredPrompt=null;const installBtn=document.getElementById("installBtn");window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;installBtn.classList.add("show")});installBtn.onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.classList.remove("show")};
-renderState();renderOperationalState();if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function populateHoldingAssets(){
+  const sel=document.getElementById("holdingAsset");
+  if(!sel)return;
+  const previous=sel.value;
+  if(!marketRows.length){
+    sel.innerHTML='<option value="">Carga Top 500 primero</option>';
+    return;
+  }
+  sel.innerHTML=marketRows.map(x=>{
+    const rank=x.market_cap_rank ?? "—";
+    const symbol=String(x.symbol||"").toUpperCase();
+    return '<option value="'+escapeHtml(x.id)+'">#'+rank+' · '+escapeHtml(symbol)+' · '+escapeHtml(x.name)+'</option>';
+  }).join("");
+  if([...sel.options].some(o=>o.value===previous))sel.value=previous;
+}
+
+function renderPortfolioPreview(){
+  const prices=new Map(
+    marketRows
+      .filter(x=>x && x.id && x.current_price!=null)
+      .map(x=>[String(x.id),Number(x.current_price)])
+  );
+  let holdingsValue=0;
+  let openPnl=0;
+  const rows=(state.holdings||[]).map(item=>{
+    const price=prices.has(String(item.id))?prices.get(String(item.id)):null;
+    const qty=Number(item.qty||0);
+    const avg=Number(item.avg||0);
+    const marketValue=price==null?null:qty*price;
+    const cost=qty*avg;
+    const pnl=marketValue==null?null:marketValue-cost;
+    if(marketValue!=null){
+      holdingsValue+=marketValue;
+      openPnl+=pnl;
+    }
+    return {...item,qty,avg,price,marketValue,pnl};
+  });
+
+  const equity=Number(state.cash||0)+holdingsValue;
+  const equityEl=document.getElementById("portfolioEquity");
+  const holdingsEl=document.getElementById("holdingsValue");
+  const pnlEl=document.getElementById("portfolioPnl");
+  const status=document.getElementById("holdingStatus");
+  const list=document.getElementById("holdingList");
+
+  if(equityEl)equityEl.textContent=equity.toLocaleString(undefined,{maximumFractionDigits:2});
+  if(holdingsEl)holdingsEl.textContent=holdingsValue.toLocaleString(undefined,{maximumFractionDigits:2});
+  if(pnlEl){
+    pnlEl.textContent=openPnl.toLocaleString(undefined,{maximumFractionDigits:2});
+    pnlEl.style.color=openPnl>0?"#61e0ae":openPnl<0?"#ff7b8f":"";
+  }
+  if(status){
+    status.textContent=rows.length
+      ? rows.length+" posiciones · "+(marketRows.length?"precios públicos cargados":"carga Top 500 para valorar")
+      : "Sin posiciones.";
+  }
+  if(list){
+    list.innerHTML=rows.map(x=>{
+      const priceBlock=x.marketValue==null
+        ? '<span class="wait">SIN PRECIO</span>'
+        : '$'+x.marketValue.toLocaleString(undefined,{maximumFractionDigits:2})
+          +'<br><span class="'+(x.pnl>=0?"pass":"bad")+'">'
+          +(x.pnl>=0?"+":"")+x.pnl.toFixed(2)+'</span>';
+      return '<div class="gate"><span><b>'+escapeHtml(x.symbol)+'</b> · '
+        +x.qty.toLocaleString(undefined,{maximumFractionDigits:8})
+        +'<br><span class="muted">'+escapeHtml(x.name)+' · medio $'
+        +x.avg.toLocaleString(undefined,{maximumSignificantDigits:8})
+        +'</span></span><span>'+priceBlock
+        +' <button onclick="removeHolding(\''+String(x.id).replaceAll("'","\\'")+'\')" class="control-btn" style="padding:4px 6px;margin-left:5px">×</button>'
+        +'</span></div>';
+    }).join("");
+  }
+}
+
+window.removeHolding=id=>{
+  state.holdings=(state.holdings||[]).filter(x=>String(x.id)!==String(id));
+  persist();
+};
+
+document.getElementById("saveHolding").onclick=()=>{
+  const id=document.getElementById("holdingAsset").value;
+  if(!id){
+    alert("Carga Top 500 y selecciona un activo.");
+    return;
+  }
+  const row=marketRows.find(x=>String(x.id)===String(id));
+  if(!row){
+    alert("Activo no disponible en el snapshot actual.");
+    return;
+  }
+  const qty=Math.max(0,Number(document.getElementById("holdingQty").value)||0);
+  const avg=Math.max(0,Number(document.getElementById("holdingAvg").value)||0);
+  const symbol=String(row.symbol||"").toUpperCase();
+
+  state.holdings=(state.holdings||[]).filter(x=>String(x.id)!==String(id));
+  if(qty>0){
+    state.holdings.push({
+      id:String(id),
+      symbol,
+      name:String(row.name||symbol),
+      qty,
+      avg
+    });
+  }
+  if(!state.watchlist.includes(symbol))state.watchlist.push(symbol);
+  if(!state.assignments[symbol])state.assignments[symbol]="UNASSIGNED";
+  if(state.allocations[symbol]==null)state.allocations[symbol]=0;
+
+  persist();
+  document.getElementById("holdingQty").value=0;
+  document.getElementById("holdingAvg").value=0;
+};
+
+async function loadMarket(){
+  const status=document.getElementById("marketStatus");
+  const body=document.getElementById("marketBody");
+  status.textContent="Cargando Top 500…";
+  body.innerHTML="";
+  try{
+    const pages=await Promise.all(
+      [1,2].map(page=>
+        fetch(
+          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page="
+          +page+"&sparkline=false&price_change_percentage=24h"
+        ).then(r=>{
+          if(!r.ok)throw new Error("HTTP "+r.status);
+          return r.json();
+        })
+      )
+    );
+    marketRows=pages.flat();
+    status.textContent=marketRows.length+" activos cargados · datos públicos";
+    populateHoldingAssets();
+    renderMarket();
+    renderPortfolioPreview();
+  }catch(e){
+    status.textContent="No se pudo cargar ahora: "+e.message;
+  }
+}
+
+function renderMarket(){
+  const q=document.getElementById("marketSearch").value.trim().toLowerCase();
+  const rows=marketRows
+    .filter(x=>!q||String(x.name||"").toLowerCase().includes(q)||String(x.symbol||"").toLowerCase().includes(q))
+    .slice(0,100);
+  document.getElementById("marketBody").innerHTML=rows.map(x=>{
+    const s=String(x.symbol||"").toUpperCase();
+    const strategy=["BTC","SOL"].includes(s)?"V6 OFICIAL":(state.assignments[s]||"SIN ASIGNAR");
+    const chg=x.price_change_percentage_24h==null?"—":Number(x.price_change_percentage_24h).toFixed(2)+"%";
+    return '<tr><td>'+escapeHtml(x.market_cap_rank)+'</td><td>'+escapeHtml(x.name)+'</td><td>'+escapeHtml(s)
+      +'</td><td>$'+Number(x.current_price).toLocaleString(undefined,{maximumSignificantDigits:8})
+      +'</td><td>'+chg+'</td><td>'+escapeHtml(strategy)
+      +'</td><td><button onclick="addWatch(\''+s.replaceAll("'","\\'")+'\')" class="control-btn" style="padding:6px 8px">+</button></td></tr>';
+  }).join("");
+  renderPortfolioPreview();
+}
+
+window.addWatch=s=>{
+  if(!state.watchlist.includes(s))state.watchlist.push(s);
+  if(!state.assignments[s])state.assignments[s]="UNASSIGNED";
+  if(state.allocations[s]==null)state.allocations[s]=0;
+  persist();
+  renderMarket();
+};
+
+document.getElementById("loadMarket").onclick=loadMarket;
+document.getElementById("marketSearch").oninput=renderMarket;
+document.getElementById("runScanner").onclick=renderScanner;
+
+let deferredPrompt=null;
+const installBtn=document.getElementById("installBtn");
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  installBtn.classList.add("show");
+});
+installBtn.onclick=async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  installBtn.classList.remove("show");
+};
+
+populateHoldingAssets();
+renderState();
+renderOperationalState();
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 </script>
 </body>
 </html>+Number(x.avg).toLocaleString(undefined,{maximumSignificantDigits:8})+'</span></span><span>'+(x.marketValue==null?'<span class="wait">SIN PRECIO</span>':'{const status=document.getElementById("marketStatus"),body=document.getElementById("marketBody");status.textContent="Cargando Top 500…";body.innerHTML="";try{const pages=await Promise.all([1,2].map(page=>fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page="+page+"&sparkline=false&price_change_percentage=24h").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})));marketRows=pages.flat();status.textContent=marketRows.length+" activos cargados · datos públicos";renderMarket()}catch(e){status.textContent="No se pudo cargar ahora: "+e.message}}

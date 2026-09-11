@@ -29,6 +29,7 @@
 
 <section id="inicio" class="panel active">
 <div class="hero"><div class="eyebrow">V6 OFICIAL · CUENTA PAPER</div><div class="equity">10,000.00 USDT</div><div class="muted">Ledger oficial aislado del Sandbox</div><div class="hero-grid"><div class="hero-stat"><div class="k">P&L realizado</div><div class="v">0.00</div></div><div class="hero-stat"><div class="k">Posiciones</div><div class="v">0</div></div><div class="hero-stat"><div class="k">Estado</div><div class="v">WAIT</div></div></div></div>
+<div class="section">ATTENTION CENTER R1 · DEMO</div><div class="card"><div class="grid4"><div class="mini"><div class="k">Pendientes</div><div class="v" id="attentionTotal">0</div></div><div class="mini"><div class="k">Acción humana</div><div class="v" id="attentionActions">0</div></div><div class="mini"><div class="k">Avisos</div><div class="v" id="attentionWarnings">0</div></div><div class="mini"><div class="k">Estado</div><div class="v" id="attentionState">OK</div></div></div><div id="attentionList" style="margin-top:10px"></div><p class="muted" style="margin-top:10px">La preview solo usa estado DEMO/local. Auditorías reales de V6, Sandbox, Early y Factory se calculan únicamente en la app privada.</p></div>
 <div class="section">CEREBRO JARVIS · V6 OFICIAL</div><div class="grid2"><div class="card"><div class="market-name">BTC/USDT · 0/7</div><div class="brain"><div class="brain-step"><b>1D</b><small>WAIT</small></div><div class="brain-step"><b>4H</b><small>WAIT</small></div><div class="brain-step"><b>1H</b><small>WAIT</small></div><div class="brain-step"><b>15m</b><small>WAIT</small></div></div></div><div class="card"><div class="market-name">SOL/USDT · 0/7</div><div class="brain"><div class="brain-step"><b>1D</b><small>WAIT</small></div><div class="brain-step"><b>4H</b><small>WAIT</small></div><div class="brain-step"><b>1H</b><small>WAIT</small></div><div class="brain-step"><b>15m</b><small>WAIT</small></div></div></div></div>
 <div class="section">MERCADO OFICIAL</div><div class="grid2">
 <div class="card"><div class="market-head"><div><div class="market-name">BTC/USDT</div><span class="signal">WAIT</span></div><div class="price">—</div></div><div class="chartbox"><svg viewBox="0 0 320 94" preserveAspectRatio="none"><defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#76ddff" stop-opacity=".22"/><stop offset="1" stop-color="#76ddff" stop-opacity="0"/></linearGradient></defs><g class="chart-grid"><line x1="0" y1="24" x2="320" y2="24"/><line x1="0" y1="47" x2="320" y2="47"/><line x1="0" y1="70" x2="320" y2="70"/></g><path class="area" d="M0 75 L30 69 L60 73 L90 53 L120 59 L150 40 L180 49 L210 32 L240 41 L270 24 L320 13 L320 94 L0 94Z"/><path class="line" d="M0 75 L30 69 L60 73 L90 53 L120 59 L150 40 L180 49 L210 32 L240 41 L270 24 L320 13"/></svg></div><div class="readiness"><div class="ring"><span>0/7</span></div><div><b>Preparación V6</b><small>Gates oficiales</small></div></div></div>
@@ -88,7 +89,7 @@
 const defaultState={sandbox:false,factory:false,capital:10000,cash:10000,reserve:20,maxPositions:5,watchlist:["BTC","SOL"],assignments:{BTC:"V6_OFFICIAL_LOCKED",SOL:"V6_OFFICIAL_LOCKED"},allocations:{BTC:40,SOL:40},holdings:[],pipelineJobs:[],experiments:[],robustnessRuns:[],approvals:[]};
 let state={...defaultState,...JSON.parse(localStorage.getItem("jarvisPreviewState")||"{}")};if(state.cash==null)state.cash=Number(state.capital||0);state.assignments={...defaultState.assignments,...(state.assignments||{})};state.allocations={...defaultState.allocations,...(state.allocations||{})};state.holdings=Array.isArray(state.holdings)?state.holdings:[];state.pipelineJobs=Array.isArray(state.pipelineJobs)?state.pipelineJobs:[];state.experiments=Array.isArray(state.experiments)?state.experiments:[];state.robustnessRuns=Array.isArray(state.robustnessRuns)?state.robustnessRuns:[];state.approvals=Array.isArray(state.approvals)?state.approvals:[];state.watchlist=[...new Set(["BTC","SOL",...(state.watchlist||[])])];
 function persist(){localStorage.setItem("jarvisPreviewState",JSON.stringify(state));renderState();renderOperationalState();}
-function renderState(){document.getElementById("sandboxPill").textContent=state.sandbox?"SANDBOX · ACTIVO":"SANDBOX · PAUSADO";document.getElementById("sandboxPill").className="pill "+(state.sandbox?"good":"warn");document.getElementById("sandboxToggle").textContent=state.sandbox?"⏸ PAUSAR SANDBOX":"▶ INICIAR SANDBOX";document.getElementById("capitalMetric").textContent=Number(state.capital).toLocaleString();document.getElementById("reserveMetric").textContent=state.reserve+"%";document.getElementById("deployMetric").textContent=(state.capital*(1-state.reserve/100)).toLocaleString(undefined,{maximumFractionDigits:0});document.getElementById("positionsMetric").textContent=state.maxPositions;document.getElementById("cashDemo").textContent=Number(state.cash||0).toLocaleString(undefined,{maximumFractionDigits:2});document.getElementById("capitalInput").value=state.capital;document.getElementById("cashInput").value=state.cash;document.getElementById("reserveInput").value=state.reserve;document.getElementById("positionsInput").value=state.maxPositions;const chips=state.watchlist.map(s=>'<span class="chip">'+s+'</span>').join("");document.getElementById("watchlistChips").innerHTML=chips;document.getElementById("portfolioWatchlist").innerHTML=chips;const lab=state.watchlist.filter(s=>!["BTC","SOL"].includes(s));document.getElementById("labAsset").innerHTML=lab.length?lab.map(s=>'<option>'+s+'</option>').join(""):'<option disabled>Añade activos desde Mercado</option>';const alloc=document.getElementById("allocationEditor");alloc.innerHTML=state.watchlist.map(s=>'<div class="gate"><span>'+s+' <span class="muted">'+(state.assignments[s]==="V6_OFFICIAL_LOCKED"?"V6":"Sandbox")+'</span></span><span><input style="width:74px;border:1px solid #213249;background:#07101a;color:white;border-radius:8px;padding:6px" type="number" min="0" max="100" step="1" value="'+Number(state.allocations[s]||0)+'" onchange="setAlloc(\''+s+'\',this.value)"> %</span></div>').join("");const total=state.watchlist.reduce((a,s)=>a+Number(state.allocations[s]||0),0),max=100-Number(state.reserve);const status=document.getElementById("allocationStatus");status.textContent=total.toFixed(1)+"% asignado · máximo "+max.toFixed(1)+"%";status.style.color=total>max?"#ff7b8f":"#61e0ae";const jobs=state.pipelineJobs||[];document.getElementById("pipeQueued").textContent=jobs.filter(j=>j.stage==="QUEUED").length;document.getElementById("pipeReady").textContent=jobs.filter(j=>j.stage==="DATA_READY").length;document.getElementById("pipeBacktest").textContent=jobs.filter(j=>j.stage==="BACKTEST_PENDING").length;document.getElementById("pipeFailed").textContent=jobs.filter(j=>j.stage==="FAILED").length;document.getElementById("pipelineStatus").textContent=jobs.length?jobs.length+" jobs de research":"Sin jobs.";document.getElementById("pipelineList").innerHTML=jobs.slice().reverse().map(j=>'<div class="gate"><span>'+j.symbol+' · '+j.family.replace("RESEARCH_","")+'</span><span class="'+(j.stage==="DATA_READY"||j.stage==="BACKTEST_PENDING"?"pass":"wait")+'">'+j.stage+'</span></div>').join("");const exps=state.experiments||[];document.getElementById("expCount").textContent=exps.length;document.getElementById("expRejected").textContent=exps.filter(e=>e.stage==="REJECTED").length;document.getElementById("expRobust").textContent=exps.filter(e=>e.stage==="ROBUSTNESS_PENDING").length;document.getElementById("experimentStatus").textContent=exps.length?exps.length+" experimentos DEMO":"Sin experimentos.";document.getElementById("experimentList").innerHTML=exps.slice().reverse().map(e=>'<div class="gate"><span>'+e.symbol+' · '+e.template+'</span><span class="'+(e.stage==="ROBUSTNESS_PENDING"?"pass":"wait")+'">'+e.stage+' · DEMO</span></div><div class="muted" style="font-size:10px;margin:-3px 0 8px">Dev '+e.dev+' · Val '+e.val+' · Holdout '+e.holdout+'</div>').join("");const robs=state.robustnessRuns||[];document.getElementById("robCount").textContent=robs.length;document.getElementById("robRejected").textContent=robs.filter(r=>r.stage==="ROBUSTNESS_REJECTED").length;document.getElementById("robReview").textContent=robs.filter(r=>r.stage==="SANDBOX_PAPER_REVIEW_PENDING").length;document.getElementById("robustnessStatus").textContent=robs.length?robs.length+" stress runs DEMO":"Sin stress runs.";document.getElementById("robustnessList").innerHTML=robs.slice().reverse().map(r=>'<div class="gate"><span>'+r.symbol+' · '+r.template+'</span><span class="'+(r.stage==="SANDBOX_PAPER_REVIEW_PENDING"?"pass":"wait")+'">'+r.stage+' · DEMO</span></div>').join("");const approvals=state.approvals||[];document.getElementById("approvalCount").textContent=approvals.length;document.getElementById("approvalActive").textContent=approvals.filter(a=>a.active).length;document.getElementById("approvalStatus").textContent=approvals.length?approvals.length+" aprobaciones DEMO":"Sin aprobaciones.";document.getElementById("approvalList").innerHTML=approvals.slice().reverse().map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">PAPER ACTIVO · DEMO</span></div>').join("");renderPortfolioPreview();renderAssetDeskPreview();}
+function renderState(){document.getElementById("sandboxPill").textContent=state.sandbox?"SANDBOX · ACTIVO":"SANDBOX · PAUSADO";document.getElementById("sandboxPill").className="pill "+(state.sandbox?"good":"warn");document.getElementById("sandboxToggle").textContent=state.sandbox?"⏸ PAUSAR SANDBOX":"▶ INICIAR SANDBOX";document.getElementById("capitalMetric").textContent=Number(state.capital).toLocaleString();document.getElementById("reserveMetric").textContent=state.reserve+"%";document.getElementById("deployMetric").textContent=(state.capital*(1-state.reserve/100)).toLocaleString(undefined,{maximumFractionDigits:0});document.getElementById("positionsMetric").textContent=state.maxPositions;document.getElementById("cashDemo").textContent=Number(state.cash||0).toLocaleString(undefined,{maximumFractionDigits:2});document.getElementById("capitalInput").value=state.capital;document.getElementById("cashInput").value=state.cash;document.getElementById("reserveInput").value=state.reserve;document.getElementById("positionsInput").value=state.maxPositions;const chips=state.watchlist.map(s=>'<span class="chip">'+s+'</span>').join("");document.getElementById("watchlistChips").innerHTML=chips;document.getElementById("portfolioWatchlist").innerHTML=chips;const lab=state.watchlist.filter(s=>!["BTC","SOL"].includes(s));document.getElementById("labAsset").innerHTML=lab.length?lab.map(s=>'<option>'+s+'</option>').join(""):'<option disabled>Añade activos desde Mercado</option>';const alloc=document.getElementById("allocationEditor");alloc.innerHTML=state.watchlist.map(s=>'<div class="gate"><span>'+s+' <span class="muted">'+(state.assignments[s]==="V6_OFFICIAL_LOCKED"?"V6":"Sandbox")+'</span></span><span><input style="width:74px;border:1px solid #213249;background:#07101a;color:white;border-radius:8px;padding:6px" type="number" min="0" max="100" step="1" value="'+Number(state.allocations[s]||0)+'" onchange="setAlloc(\''+s+'\',this.value)"> %</span></div>').join("");const total=state.watchlist.reduce((a,s)=>a+Number(state.allocations[s]||0),0),max=100-Number(state.reserve);const status=document.getElementById("allocationStatus");status.textContent=total.toFixed(1)+"% asignado · máximo "+max.toFixed(1)+"%";status.style.color=total>max?"#ff7b8f":"#61e0ae";const jobs=state.pipelineJobs||[];document.getElementById("pipeQueued").textContent=jobs.filter(j=>j.stage==="QUEUED").length;document.getElementById("pipeReady").textContent=jobs.filter(j=>j.stage==="DATA_READY").length;document.getElementById("pipeBacktest").textContent=jobs.filter(j=>j.stage==="BACKTEST_PENDING").length;document.getElementById("pipeFailed").textContent=jobs.filter(j=>j.stage==="FAILED").length;document.getElementById("pipelineStatus").textContent=jobs.length?jobs.length+" jobs de research":"Sin jobs.";document.getElementById("pipelineList").innerHTML=jobs.slice().reverse().map(j=>'<div class="gate"><span>'+j.symbol+' · '+j.family.replace("RESEARCH_","")+'</span><span class="'+(j.stage==="DATA_READY"||j.stage==="BACKTEST_PENDING"?"pass":"wait")+'">'+j.stage+'</span></div>').join("");const exps=state.experiments||[];document.getElementById("expCount").textContent=exps.length;document.getElementById("expRejected").textContent=exps.filter(e=>e.stage==="REJECTED").length;document.getElementById("expRobust").textContent=exps.filter(e=>e.stage==="ROBUSTNESS_PENDING").length;document.getElementById("experimentStatus").textContent=exps.length?exps.length+" experimentos DEMO":"Sin experimentos.";document.getElementById("experimentList").innerHTML=exps.slice().reverse().map(e=>'<div class="gate"><span>'+e.symbol+' · '+e.template+'</span><span class="'+(e.stage==="ROBUSTNESS_PENDING"?"pass":"wait")+'">'+e.stage+' · DEMO</span></div><div class="muted" style="font-size:10px;margin:-3px 0 8px">Dev '+e.dev+' · Val '+e.val+' · Holdout '+e.holdout+'</div>').join("");const robs=state.robustnessRuns||[];document.getElementById("robCount").textContent=robs.length;document.getElementById("robRejected").textContent=robs.filter(r=>r.stage==="ROBUSTNESS_REJECTED").length;document.getElementById("robReview").textContent=robs.filter(r=>r.stage==="SANDBOX_PAPER_REVIEW_PENDING").length;document.getElementById("robustnessStatus").textContent=robs.length?robs.length+" stress runs DEMO":"Sin stress runs.";document.getElementById("robustnessList").innerHTML=robs.slice().reverse().map(r=>'<div class="gate"><span>'+r.symbol+' · '+r.template+'</span><span class="'+(r.stage==="SANDBOX_PAPER_REVIEW_PENDING"?"pass":"wait")+'">'+r.stage+' · DEMO</span></div>').join("");const approvals=state.approvals||[];document.getElementById("approvalCount").textContent=approvals.length;document.getElementById("approvalActive").textContent=approvals.filter(a=>a.active).length;document.getElementById("approvalStatus").textContent=approvals.length?approvals.length+" aprobaciones DEMO":"Sin aprobaciones.";document.getElementById("approvalList").innerHTML=approvals.slice().reverse().map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">PAPER ACTIVO · DEMO</span></div>').join("");renderPortfolioPreview();renderAssetDeskPreview();renderAttentionPreview();}
 function renderOperationalState(){const activeRows=(state.approvals||[]).filter(a=>a.active);const active=activeRows.length;const paper=!state.sandbox?"PAUSED":active===0?"IDLE":"HEALTHY";const pill=document.getElementById("paperPill");if(pill){pill.textContent="PAPER · "+paper;pill.className="pill "+(paper==="HEALTHY"?"good":"warn")}const sys=document.getElementById("systemPaper");if(sys)sys.textContent=paper;const approvals=document.getElementById("systemApprovals");if(approvals)approvals.textContent=active;const factoryOn=!!state.factory&&!!state.sandbox;const fp=document.getElementById("factoryPill");if(fp){fp.textContent="FACTORY · "+(factoryOn?"ON":"OFF");fp.className="pill "+(factoryOn?"good":"warn")}const fs=document.getElementById("factoryState");if(fs)fs.textContent=factoryOn?"ON":"OFF";const sf=document.getElementById("systemFactory");if(sf)sf.textContent=factoryOn?"ON":"OFF";const ft=document.getElementById("factoryToggle");if(ft)ft.textContent=factoryOn?"⏸ PAUSAR AUTO RESEARCH":"▶ ACTIVAR AUTO RESEARCH";const fstatus=document.getElementById("factoryStatus");if(fstatus)fstatus.textContent=!state.sandbox?"Requiere Sandbox activo.":factoryOn?"Factory DEMO activa · hard stop en PAPER REVIEW.":"Factory pausada.";const supervisors=document.getElementById("systemSupervisors");if(supervisors)supervisors.textContent=(2+(state.sandbox?1:0)+(factoryOn?1:0))+"/4";const tradeStatus=document.getElementById("tradePaperStatus");if(tradeStatus)tradeStatus.textContent=paper;const tradeApprovals=document.getElementById("tradeApprovals");if(tradeApprovals)tradeApprovals.textContent=active;const list=document.getElementById("tradeApprovalList");if(list)list.innerHTML=activeRows.length?activeRows.map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">'+Number(a.allocation||0).toFixed(1)+'% PAPER</span></div>').join(""):'<div class="muted">No hay estrategias Sandbox Paper aprobadas.</div>';}
 document.getElementById("sandboxToggle").onclick=()=>{state.sandbox=!state.sandbox;if(!state.sandbox)state.factory=false;persist();renderScanner()};
 document.getElementById("factoryToggle").onclick=()=>{if(!state.sandbox){alert("Inicia el Sandbox primero.");return}state.factory=!state.factory;persist()};
@@ -117,6 +118,94 @@ function escapeHtml(value){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
+}
+
+function buildDemoAttentionItems(){
+  const items=[];
+  const jobs=state.pipelineJobs||[];
+  const robustness=state.robustnessRuns||[];
+  const holdCount=jobs.filter(j=>j.stage==="HOLD").length;
+  if(holdCount){
+    items.push({
+      severity:"action",
+      area:"RESEARCH",
+      title:holdCount+" candidato(s) en HOLD",
+      detail:"Revisión manual necesaria antes de continuar.",
+      action:"LAB > PIPELINE"
+    });
+  }
+
+  const reviewCount=robustness.filter(r=>r.stage==="SANDBOX_PAPER_REVIEW_PENDING"&&!state.approvals.some(a=>a.symbol===r.symbol&&a.active)).length;
+  if(reviewCount){
+    items.push({
+      severity:"action",
+      area:"PAPER REVIEW",
+      title:reviewCount+" candidato(s) esperando revisión",
+      detail:"La preview se detiene antes de activar Sandbox Paper.",
+      action:"MÁS > LAB > PAPER REVIEW"
+    });
+  }
+
+  const totalAllocation=(state.watchlist||[]).reduce((sum,s)=>sum+Number(state.allocations[s]||0),0);
+  const maxAllocation=100-Number(state.reserve||0);
+  if(totalAllocation>maxAllocation+1e-9){
+    items.push({
+      severity:"medium",
+      area:"CARTERA",
+      title:"Asignación objetivo inválida",
+      detail:totalAllocation.toFixed(1)+"% asignado > "+maxAllocation.toFixed(1)+"% desplegable.",
+      action:"CARTERA > ASIGNACIÓN OBJETIVO"
+    });
+  }
+
+  const deskRows=typeof buildDemoAssetDeskRows==="function"?buildDemoAssetDeskRows():[];
+  const ambiguous=deskRows.filter(x=>String(x.identity||"").includes("AMBIGUO")).length;
+  if(ambiguous){
+    items.push({
+      severity:"medium",
+      area:"ASSET DESK",
+      title:ambiguous+" identidad(es) ambigua(s)",
+      detail:"Jarvis DEMO no fusiona tickers ambiguos sin identidad estable.",
+      action:"MERCADO > ASSET DESK"
+    });
+  }
+
+  if(marketRows.length){
+    const marketIds=new Set(marketRows.map(x=>String(x.id)));
+    const unpriced=(state.holdings||[]).filter(x=>!marketIds.has(String(x.id))).length;
+    if(unpriced){
+      items.push({
+        severity:"medium",
+        area:"CARTERA",
+        title:unpriced+" posición(es) sin precio",
+        detail:"No se incluyen en una valoración parcial inventada.",
+        action:"CARTERA > CARTERA ACTUAL"
+      });
+    }
+  }
+
+  return items;
+}
+
+function renderAttentionPreview(){
+  const items=buildDemoAttentionItems();
+  const actions=items.filter(x=>x.severity==="action").length;
+  const warnings=items.filter(x=>x.severity==="medium").length;
+  const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+  setText("attentionTotal",String(items.length));
+  setText("attentionActions",String(actions));
+  setText("attentionWarnings",String(warnings));
+  setText("attentionState",items.length?(actions?"ACCIÓN":"AVISO"):"OK");
+
+  const list=document.getElementById("attentionList");
+  if(!list)return;
+  if(!items.length){
+    list.innerHTML='<div class="gate"><span>Sin acciones pendientes detectadas</span><span class="pass">OK</span></div>';
+    return;
+  }
+  list.innerHTML=items.map(x=>
+    '<div class="gate"><span><b>'+escapeHtml(x.area)+' · '+escapeHtml(x.title)+'</b><br><span class="muted">'+escapeHtml(x.detail)+' · '+escapeHtml(x.action)+'</span></span><span class="'+(x.severity==="action"?"wait":"wait")+'">'+(x.severity==="action"?"ACCIÓN":"AVISO")+'</span></div>'
+  ).join("");
 }
 
 function buildDemoAssetDeskRows(){
@@ -431,6 +520,7 @@ function renderMarket(){
   }).join("");
   renderPortfolioPreview();
   renderAssetDeskPreview();
+  renderAttentionPreview();
 }
 
 window.addWatch=s=>{

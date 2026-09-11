@@ -3,118 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#070b11">
+<meta name="theme-color" content="#060a10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
 <title>JARVIS V6</title>
 <style>
-:root{--bg:#070b11;--card:#0d1622;--line:#223247;--text:#eef4fb;--muted:#8191a7;--green:#5fe0ae;--amber:#f0b451;--red:#ff7d90;--blue:#73caff}
-*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:radial-gradient(circle at 12% 0%,rgba(31,95,140,.18),transparent 27%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-.app{max-width:1180px;margin:auto;padding:18px 18px 34px}
-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.brand{font-size:38px;font-weight:950;letter-spacing:.15em;line-height:1}.subtitle{margin-top:7px;color:var(--muted);font-size:11px;letter-spacing:.16em;font-weight:800}
-.badge{border:1px solid #654c26;background:#241b0c;color:var(--amber);padding:8px 11px;border-radius:999px;font-size:11px;font-weight:850;white-space:nowrap}
-.status{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.pill{border:1px solid var(--line);background:#0b141e;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:850;letter-spacing:.04em}.good{color:var(--green);border-color:#255746}.warn{color:var(--amber);border-color:#5c4524}.bad{color:var(--red);border-color:#63303d}
-.nav{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 0 10px;background:linear-gradient(180deg,#070b11 75%,rgba(7,11,17,0))}.nav button{min-width:0;border:1px solid var(--line);background:#0d151f;color:#899ab0;padding:10px 5px;border-radius:10px;font-size:11px;font-weight:900}.nav button.active{background:#142438;color:white;border-color:#385471}
-.panel{display:none}.panel.active{display:block}.section{margin:20px 0 8px;color:#73869e;font-size:10px;font-weight:900;letter-spacing:.15em}.grid{display:grid;gap:10px}.metrics{grid-template-columns:repeat(5,1fr)}.two{grid-template-columns:repeat(2,1fr)}.four{grid-template-columns:repeat(4,1fr)}
-.card,.metric,.mini{background:linear-gradient(180deg,#101a27,#0b131d);border:1px solid var(--line);border-radius:14px}.metric{padding:13px}.k{color:var(--muted);font-size:11px}.v{font-size:19px;font-weight:900;margin-top:5px}.card{padding:15px}.mini{padding:11px}.mini .v{font-size:15px}
-.market-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}.market-title{font-size:21px;font-weight:900}.price{font-size:27px;font-weight:950}.muted{color:var(--muted)}.gate{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #1a2736;padding:8px 0;font-size:12px}.pass{color:var(--green);font-weight:900}.wait{color:var(--amber);font-weight:900}
-.brain{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.brain-step{padding:12px;border-radius:12px;border:1px solid var(--line);background:#0b131d}.brain-step strong{display:block;font-size:12px}.brain-step span{font-size:11px;color:var(--amber)}
-.event{padding:11px 12px;border-left:3px solid #356485;background:#0b131d;border-radius:9px;margin:8px 0}.event b{display:block;margin-bottom:3px}.empty{padding:24px 15px;text-align:center;color:var(--muted);border:1px dashed #2a3a4e;border-radius:14px}.progress{height:8px;background:#182435;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#4a94ca,#5fe0ae)}footer{margin-top:26px;color:#63758a;font-size:11px}
-@media(max-width:760px){
- .app{padding:14px 14px 28px}.brand{font-size:32px}.subtitle{max-width:260px;line-height:1.35}.badge{font-size:10px;padding:7px 9px}
- .metrics{grid-template-columns:repeat(2,1fr)}.metrics .metric:last-child{grid-column:1/-1}.two{grid-template-columns:1fr}.four,.brain{grid-template-columns:repeat(2,1fr)}
- .metric{padding:12px}.v{font-size:17px}.card{padding:13px}.nav button{font-size:10px;padding:9px 2px}.section{margin-top:17px}
-}
+:root{--bg:#060a10;--panel:#0b121c;--panel2:#101a27;--line:#23334a;--text:#f2f6fb;--muted:#8494aa;--green:#62e2b0;--amber:#f2b758;--red:#ff7d92;--blue:#72caff;--cyan:#79e3ff}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:radial-gradient(circle at 12% -5%,rgba(49,117,170,.22),transparent 26%),radial-gradient(circle at 95% 0,rgba(25,126,98,.11),transparent 23%),var(--bg)}
+.shell{max-width:1180px;margin:auto;padding:18px 18px 96px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.brand{font-size:38px;font-weight:950;letter-spacing:.17em;line-height:.95}.sub{margin-top:8px;color:var(--muted);font-size:11px;letter-spacing:.15em;font-weight:850}.preview{padding:7px 10px;border:1px solid #65502a;border-radius:999px;background:#21180b;color:var(--amber);font-size:10px;font-weight:900}
+.status{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.pill{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#0a121b;font-size:10px;font-weight:900;letter-spacing:.05em}.good{color:var(--green);border-color:#245846}.warn{color:var(--amber);border-color:#654c26}.bad{color:var(--red);border-color:#66323f}
+.desktop-nav{display:flex;gap:8px;margin:12px 0 18px}.desktop-nav button,.bottom-nav button{border:0;background:none;color:var(--muted);font:inherit;font-weight:850}.desktop-nav button{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#0b131d}.desktop-nav button.active{color:white;border-color:#3a5574;background:#132237}
+.panel{display:none}.panel.active{display:block}.hero{position:relative;overflow:hidden;padding:18px;border:1px solid #29405a;border-radius:18px;background:linear-gradient(145deg,rgba(18,34,50,.98),rgba(8,16,25,.98));box-shadow:0 18px 45px rgba(0,0,0,.25)}.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-75px;top:-95px;background:radial-gradient(circle,rgba(114,202,255,.18),transparent 68%)}.eyebrow{color:#7790aa;font-size:10px;font-weight:900;letter-spacing:.16em}.equity{font-size:34px;font-weight:950;margin:5px 0}.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.hero-stat{padding:10px 0;border-top:1px solid #223249}.k{color:var(--muted);font-size:11px}.v{font-size:18px;font-weight:900;margin-top:4px}.section{margin:20px 0 8px;color:#70849c;font-size:10px;font-weight:900;letter-spacing:.16em}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.card,.mini{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:15px}.card{padding:15px}.mini{padding:11px}.mini .v{font-size:15px}.market-head{display:flex;align-items:end;justify-content:space-between}.market-name{font-size:20px;font-weight:950}.price{font-size:26px;font-weight:950}.muted{color:var(--muted)}.signal{display:inline-block;margin-top:8px;padding:5px 8px;border-radius:999px;background:#22190c;border:1px solid #5c4627;color:var(--amber);font-size:10px;font-weight:900}.spark{width:100%;height:54px;margin:10px 0 4px}.spark path{fill:none;stroke:var(--cyan);stroke-width:2}.spark .area{fill:url(#g);stroke:none}.gate{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #1c2938;padding:8px 0;font-size:12px}.pass{color:var(--green);font-weight:900}.wait{color:var(--amber);font-weight:900}.brain{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.brain-step{position:relative;padding:12px;border:1px solid var(--line);border-radius:13px;background:#0b131d}.brain-step b{display:block;font-size:12px}.brain-step small{display:block;margin-top:5px;color:var(--amber);font-weight:850}.brain-step:not(:last-child):after{content:"›";position:absolute;right:-7px;top:50%;transform:translateY(-50%);color:#40556d;font-size:20px;z-index:2}.event{display:flex;gap:10px;padding:11px 12px;border:1px solid #1d2c3d;border-radius:11px;background:#0a111a;margin:8px 0}.event-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;background:var(--blue);box-shadow:0 0 12px rgba(114,202,255,.65)}.event b{display:block;font-size:13px}.event span{display:block;font-size:12px;color:var(--muted);margin-top:3px}.empty{padding:24px 14px;border:1px dashed #2b3b50;border-radius:14px;text-align:center;color:var(--muted)}.progress{height:8px;background:#182334;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#4b94cb,#62e2b0)}footer{margin-top:28px;color:#63778d;font-size:11px}.bottom-nav{display:none}
+@media(max-width:760px){.shell{padding:14px 14px 92px}.brand{font-size:31px}.sub{font-size:10px}.preview{font-size:9px}.desktop-nav{display:none}.grid2{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.brain{grid-template-columns:repeat(2,1fr)}.brain-step:not(:last-child):after{display:none}.hero{padding:15px}.equity{font-size:30px}.hero-grid{grid-template-columns:repeat(3,1fr);gap:7px}.hero-stat .v{font-size:14px}.hero-stat .k{font-size:10px}.market-name{font-size:18px}.price{font-size:24px}.bottom-nav{position:fixed;left:10px;right:10px;bottom:10px;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(10,17,26,.93);backdrop-filter:blur(18px);border:1px solid #24364d;border-radius:18px;padding:8px 5px;box-shadow:0 18px 50px rgba(0,0,0,.45)}.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;padding:4px 2px}.bottom-nav .ico{font-size:17px;line-height:1}.bottom-nav button.active{color:var(--cyan)}}
 </style>
 </head>
 <body>
-<div class="app">
-<header>
-  <div><div class="brand">JARVIS</div><div class="subtitle">V6 · INTELIGENCIA FORWARD PAPER</div></div>
-  <div class="badge">● PREVIEW</div>
-</header>
-
-<div class="status">
- <span class="pill good">BITGET · PÚBLICO</span>
- <span class="pill bad">TRADING · OFF</span>
- <span class="pill good">V6 · CONGELADA</span>
- <span class="pill warn">RUNTIME · DEMO</span>
-</div>
-
-<nav class="nav">
- <button class="active" data-tab="resumen">RESUMEN</button>
- <button data-tab="mercado">MERCADO</button>
- <button data-tab="trades">TRADES</button>
- <button data-tab="gate">GATE</button>
- <button data-tab="sistema">SISTEMA</button>
-</nav>
-
+<div class="shell">
+<div class="topbar"><div><div class="brand">JARVIS</div><div class="sub">V6 · INTELIGENCIA FORWARD PAPER</div></div><div class="preview">● PREVIEW</div></div>
+<div class="status"><span class="pill good">BITGET · PÚBLICO</span><span class="pill bad">TRADING · OFF</span><span class="pill good">V6 · CONGELADA</span><span class="pill warn">RUNTIME · DEMO</span></div>
+<nav class="desktop-nav"><button class="active" data-tab="resumen">Resumen</button><button data-tab="mercado">Mercado</button><button data-tab="trades">Trades</button><button data-tab="gate">Gate</button><button data-tab="sistema">Sistema</button></nav>
 <section id="resumen" class="panel active">
- <div class="grid metrics">
-  <div class="metric"><div class="k">Sistema</div><div class="v">HEALTHY</div></div>
-  <div class="metric"><div class="k">Equity</div><div class="v">10,000 USDT</div></div>
-  <div class="metric"><div class="k">P&L realizado</div><div class="v">0.00 USDT</div></div>
-  <div class="metric"><div class="k">Posiciones</div><div class="v">0</div></div>
-  <div class="metric"><div class="k">Estado actual</div><div class="v">WAIT</div></div>
- </div>
-
- <div class="section">CEREBRO JARVIS</div>
- <div class="brain">
-  <div class="brain-step"><strong>1D · Régimen</strong><span>WAIT</span></div>
-  <div class="brain-step"><strong>4H · Contexto</strong><span>WAIT</span></div>
-  <div class="brain-step"><strong>1H · Momentum</strong><span>WAIT</span></div>
-  <div class="brain-step"><strong>15m · Trigger</strong><span>WAIT</span></div>
- </div>
-
- <div class="section">MERCADO</div>
- <div class="grid two">
-  <div class="card"><div class="market-top"><div><div class="market-title">BTC/USDT</div><div class="muted">Estado V6</div></div><div class="price">—</div></div><div class="gate"><span>Preparación entrada</span><span class="wait">WAIT</span></div><div class="gate"><span>Última señal</span><span class="muted">—</span></div></div>
-  <div class="card"><div class="market-top"><div><div class="market-title">SOL/USDT</div><div class="muted">Estado V6</div></div><div class="price">—</div></div><div class="gate"><span>Preparación entrada</span><span class="wait">WAIT</span></div><div class="gate"><span>Última señal</span><span class="muted">—</span></div></div>
- </div>
-
- <div class="section">ACTIVIDAD</div>
- <div class="event"><b>Jarvis listo para monitorizar</b><span class="muted">La app real cargará aquí velas, señales y eventos del runtime.</span></div>
- <div class="event"><b>V6 congelada</b><span class="muted">La interfaz no modifica ninguna regla de trading.</span></div>
+<div class="hero"><div class="eyebrow">CUENTA PAPER · V6 PRIMARIA</div><div class="equity">10,000.00 USDT</div><div class="muted">Equity mark-to-market</div><div class="hero-grid"><div class="hero-stat"><div class="k">P&L realizado</div><div class="v">0.00</div></div><div class="hero-stat"><div class="k">Posiciones</div><div class="v">0</div></div><div class="hero-stat"><div class="k">Estado</div><div class="v">WAIT</div></div></div></div>
+<div class="section">CEREBRO JARVIS</div><div class="brain"><div class="brain-step"><b>1D · Régimen</b><small>WAIT</small></div><div class="brain-step"><b>4H · Contexto</b><small>WAIT</small></div><div class="brain-step"><b>1H · Momentum</b><small>WAIT</small></div><div class="brain-step"><b>15m · Trigger</b><small>WAIT</small></div></div>
+<div class="section">MERCADO</div><div class="grid2">
+<div class="card"><div class="market-head"><div><div class="market-name">BTC/USDT</div><span class="signal">WAIT</span></div><div class="price">—</div></div><svg class="spark" viewBox="0 0 280 54" preserveAspectRatio="none"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#79e3ff" stop-opacity=".22"/><stop offset="1" stop-color="#79e3ff" stop-opacity="0"/></linearGradient></defs><path class="area" d="M0 44 L25 39 L50 42 L75 30 L100 34 L125 22 L150 28 L175 20 L200 25 L225 14 L250 18 L280 8 L280 54 L0 54Z"/><path d="M0 44 L25 39 L50 42 L75 30 L100 34 L125 22 L150 28 L175 20 L200 25 L225 14 L250 18 L280 8"/></svg><div class="gate"><span>Preparación entrada</span><span class="wait">WAIT</span></div><div class="gate"><span>Última señal</span><span class="muted">—</span></div></div>
+<div class="card"><div class="market-head"><div><div class="market-name">SOL/USDT</div><span class="signal">WAIT</span></div><div class="price">—</div></div><svg class="spark" viewBox="0 0 280 54" preserveAspectRatio="none"><path d="M0 34 L25 30 L50 37 L75 28 L100 31 L125 24 L150 29 L175 18 L200 23 L225 19 L250 12 L280 15"/></svg><div class="gate"><span>Preparación entrada</span><span class="wait">WAIT</span></div><div class="gate"><span>Última señal</span><span class="muted">—</span></div></div></div>
+<div class="section">ACTIVIDAD</div><div class="event"><i class="event-dot"></i><div><b>Jarvis listo</b><span>La app real cargará aquí eventos del runtime y decisiones V6.</span></div></div><div class="event"><i class="event-dot"></i><div><b>Estrategia congelada</b><span>La interfaz no modifica reglas, parámetros ni señales.</span></div></div>
 </section>
-
-<section id="mercado" class="panel">
- <div class="section">BTC / USDT</div>
- <div class="card"><div class="market-top"><div><div class="market-title">BTC/USDT</div><div class="muted">Estado causal V6</div></div><div class="price">—</div></div>
- <div class="gate"><span>1D alcista</span><span class="wait">WAIT</span></div><div class="gate"><span>4H favorable</span><span class="wait">WAIT</span></div><div class="gate"><span>1H RSI subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>1H MACD subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>15m reclaim EMA20</span><span class="wait">WAIT</span></div></div>
- <div class="section">SOL / USDT</div>
- <div class="card"><div class="market-top"><div><div class="market-title">SOL/USDT</div><div class="muted">Estado causal V6</div></div><div class="price">—</div></div>
- <div class="gate"><span>1D alcista</span><span class="wait">WAIT</span></div><div class="gate"><span>4H favorable</span><span class="wait">WAIT</span></div><div class="gate"><span>1H RSI subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>1H MACD subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>15m reclaim EMA20</span><span class="wait">WAIT</span></div></div>
-</section>
-
-<section id="trades" class="panel">
- <div class="section">CUENTA PAPER · PRIMARIA 30D</div>
- <div class="grid four"><div class="mini"><div class="k">Equity MTM</div><div class="v">10,000</div></div><div class="mini"><div class="k">P&L realizado</div><div class="v">0.00</div></div><div class="mini"><div class="k">Trades cerrados</div><div class="v">0</div></div><div class="mini"><div class="k">Posiciones</div><div class="v">0</div></div></div>
- <div class="section">POSICIONES ABIERTAS</div><div class="empty">No hay posiciones paper abiertas.</div>
- <div class="section">ÚLTIMOS TRADES</div><div class="empty">Aún no hay operaciones forward cerradas.</div>
-</section>
-
-<section id="gate" class="panel">
- <div class="section">REVISIÓN FUTURA</div>
- <div class="grid four"><div class="mini"><div class="k">Trades primarios</div><div class="v">0 / 20</div></div><div class="mini"><div class="k">Días forward</div><div class="v">0 / 365</div></div><div class="mini"><div class="k">Profit factor</div><div class="v">—</div></div><div class="mini"><div class="k">Drawdown</div><div class="v">—</div></div></div>
- <div class="card" style="margin-top:10px"><div class="progress"><div class="bar"></div></div><p class="muted">Superar este gate permite una revisión humana separada. No autoriza trading real.</p>
- <div class="gate"><span>365 días forward</span><span class="wait">WAIT</span></div><div class="gate"><span>20 trades primarios</span><span class="wait">WAIT</span></div><div class="gate"><span>Muestra BTC + SOL</span><span class="wait">WAIT</span></div><div class="gate"><span>PF ≥ 1.30</span><span class="wait">WAIT</span></div><div class="gate"><span>DD ≥ -10%</span><span class="wait">WAIT</span></div></div>
-</section>
-
-<section id="sistema" class="panel">
- <div class="section">SALUD DEL SISTEMA</div>
- <div class="grid four"><div class="mini"><div class="k">Runtime</div><div class="v">DEMO</div></div><div class="mini"><div class="k">Auditoría</div><div class="v">—</div></div><div class="mini"><div class="k">Backup</div><div class="v">—</div></div><div class="mini"><div class="k">Huecos >45m</div><div class="v">0</div></div></div>
- <div class="section">SEGURIDAD</div>
- <div class="card"><div class="gate"><span>API privada</span><span class="pass">NO</span></div><div class="gate"><span>Órdenes reales</span><span class="pass">NO</span></div><div class="gate"><span>Apalancamiento</span><span class="pass">NO</span></div><div class="gate"><span>Retiradas</span><span class="pass">NO</span></div></div>
-</section>
-
-<footer>JARVIS V6 · preview visual · estrategia real y runtime permanecen en el repositorio privado</footer>
+<section id="mercado" class="panel"><div class="section">BTC / USDT</div><div class="card"><div class="market-head"><div class="market-name">BTC/USDT</div><div class="price">—</div></div><div class="gate"><span>1D alcista</span><span class="wait">WAIT</span></div><div class="gate"><span>4H favorable</span><span class="wait">WAIT</span></div><div class="gate"><span>1H RSI subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>1H MACD subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>15m reclaim EMA20</span><span class="wait">WAIT</span></div></div><div class="section">SOL / USDT</div><div class="card"><div class="market-head"><div class="market-name">SOL/USDT</div><div class="price">—</div></div><div class="gate"><span>1D alcista</span><span class="wait">WAIT</span></div><div class="gate"><span>4H favorable</span><span class="wait">WAIT</span></div><div class="gate"><span>1H RSI subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>1H MACD subiendo</span><span class="wait">WAIT</span></div><div class="gate"><span>15m reclaim EMA20</span><span class="wait">WAIT</span></div></div></section>
+<section id="trades" class="panel"><div class="section">CUENTA PAPER · 30D</div><div class="grid4"><div class="mini"><div class="k">Equity</div><div class="v">10,000</div></div><div class="mini"><div class="k">P&L</div><div class="v">0.00</div></div><div class="mini"><div class="k">Trades</div><div class="v">0</div></div><div class="mini"><div class="k">Abiertas</div><div class="v">0</div></div></div><div class="section">POSICIONES ABIERTAS</div><div class="empty">No hay posiciones paper abiertas.</div><div class="section">HISTORIAL</div><div class="empty">Aún no hay operaciones forward cerradas.</div></section>
+<section id="gate" class="panel"><div class="section">REVISIÓN FUTURA</div><div class="grid4"><div class="mini"><div class="k">Trades</div><div class="v">0 / 20</div></div><div class="mini"><div class="k">Días</div><div class="v">0 / 365</div></div><div class="mini"><div class="k">PF</div><div class="v">—</div></div><div class="mini"><div class="k">DD</div><div class="v">—</div></div></div><div class="card" style="margin-top:10px"><div class="progress"><div class="bar"></div></div><p class="muted">Superar este gate solo permite una revisión humana separada.</p><div class="gate"><span>365 días forward</span><span class="wait">WAIT</span></div><div class="gate"><span>20 trades primarios</span><span class="wait">WAIT</span></div><div class="gate"><span>Muestra BTC + SOL</span><span class="wait">WAIT</span></div><div class="gate"><span>PF ≥ 1.30</span><span class="wait">WAIT</span></div><div class="gate"><span>DD ≥ -10%</span><span class="wait">WAIT</span></div></div></section>
+<section id="sistema" class="panel"><div class="section">SALUD</div><div class="grid4"><div class="mini"><div class="k">Runtime</div><div class="v">DEMO</div></div><div class="mini"><div class="k">Auditoría</div><div class="v">—</div></div><div class="mini"><div class="k">Backup</div><div class="v">—</div></div><div class="mini"><div class="k">Huecos</div><div class="v">0</div></div></div><div class="section">SEGURIDAD</div><div class="card"><div class="gate"><span>API privada</span><span class="pass">NO</span></div><div class="gate"><span>Órdenes reales</span><span class="pass">NO</span></div><div class="gate"><span>Apalancamiento</span><span class="pass">NO</span></div><div class="gate"><span>Retiradas</span><span class="pass">NO</span></div></div></section>
+<footer>JARVIS V6 · preview visual · el motor real permanece privado</footer>
 </div>
+<nav class="bottom-nav"><button class="active" data-tab="resumen"><span class="ico">⌂</span><span>Resumen</span></button><button data-tab="mercado"><span class="ico">⌁</span><span>Mercado</span></button><button data-tab="trades"><span class="ico">↕</span><span>Trades</span></button><button data-tab="gate"><span class="ico">◎</span><span>Gate</span></button><button data-tab="sistema"><span class="ico">⚙</span><span>Sistema</span></button></nav>
 <script>
-const buttons=[...document.querySelectorAll('.nav button')];
-const panels=[...document.querySelectorAll('.panel')];
-buttons.forEach(btn=>btn.addEventListener('click',()=>{
- buttons.forEach(b=>b.classList.remove('active')); panels.forEach(p=>p.classList.remove('active'));
- btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
- window.scrollTo({top:0,behavior:'smooth'});
-}));
+const navButtons=[...document.querySelectorAll('[data-tab]')],panels=[...document.querySelectorAll('.panel')];
+navButtons.forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.tab;navButtons.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));window.scrollTo({top:0,behavior:'smooth'});}));
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>

@@ -49,6 +49,7 @@
 <div class="section">CONFIGURACIÓN</div><div class="card"><div class="input-grid"><div class="field"><label>Capital objetivo USD</label><input id="capitalInput" type="number" min="0" step="500"></div><div class="field"><label>Cash / USDT actual</label><input id="cashInput" type="number" min="0" step="100"></div><div class="field"><label>Reserva %</label><input id="reserveInput" type="number" min="0" max="100" step="1"></div><div class="field"><label>Máx. posiciones</label><input id="positionsInput" type="number" min="1" max="50" step="1"></div></div><button id="savePortfolio" class="save">GUARDAR CONFIGURACIÓN</button></div>
 <div class="section">ASIGNACIÓN OBJETIVO</div><div class="card"><div id="allocationEditor"></div><div id="allocationStatus" class="muted" style="margin-top:9px"></div></div>
 <div class="section">CARTERA ACTUAL · DEMO LOCAL</div><div class="card"><p class="muted">Carga Top 500 en Mercado, elige un activo y guarda cantidad + precio medio. La preview conserva estos datos solo en este navegador. La app real fija CoinGecko ID y falla cerrado si la identidad es ambigua.</p><div class="field"><label>Activo Top-500</label><select id="holdingAsset"><option value="">Carga Top 500 primero</option></select></div><div class="input-grid" style="margin-top:8px"><div class="field"><label>Cantidad</label><input id="holdingQty" type="number" min="0" step="0.0001" value="0"></div><div class="field"><label>Precio medio USD</label><input id="holdingAvg" type="number" min="0" step="1" value="0"></div></div><button id="saveHolding" class="save">AÑADIR / ACTUALIZAR POSICIÓN</button><div id="holdingStatus" class="muted" style="margin-top:9px">Sin posiciones.</div><div id="holdingList" style="margin-top:10px"></div></div>
+<div class="section">PORTFOLIO RISK R1 · DEMO</div><div class="card"><p class="muted">Diagnóstico read-only sobre la cartera de seguimiento. No rebalancea ni ejecuta operaciones.</p><div class="grid3"><div class="mini"><div class="k">Estado</div><div class="v" id="portfolioRiskStatus">OK</div></div><div class="mini"><div class="k">Exposición</div><div class="v" id="portfolioExposure">0%</div></div><div class="mini"><div class="k">Cobertura precios</div><div class="v" id="portfolioCoverage">100%</div></div></div><div class="grid3" style="margin-top:8px"><div class="mini"><div class="k">Mayor posición</div><div class="v" id="portfolioLargest">—</div></div><div class="mini"><div class="k">Top-3</div><div class="v" id="portfolioTop3">0%</div></div><div class="mini"><div class="k">Déficit reserva</div><div class="v" id="portfolioReserveGap">0</div></div></div><div class="section">OBJETIVO VS ACTUAL</div><div id="portfolioDrift"></div><div class="grid3" style="margin-top:8px"><div class="mini"><div class="k">Peso cash</div><div class="v" id="cashWeight">100%</div></div><div class="mini"><div class="k">Reserva mínima</div><div class="v" id="cashReserveTarget">2,000</div></div><div class="mini"><div class="k">Sin precio</div><div class="v" id="portfolioUnpriced">0</div></div></div></div>
 <div class="section">WATCHLIST</div><div class="card"><div id="portfolioWatchlist" class="watchlist"></div></div>
 </section>
 
@@ -187,6 +188,68 @@ function renderPortfolioPreview(){
         +'</span></span><span>'+priceBlock
         +' <button onclick="removeHolding(\''+String(x.id).replaceAll("'","\\'")+'\')" class="control-btn" style="padding:4px 6px;margin-left:5px">×</button>'
         +'</span></div>';
+    }).join("");
+  }
+  renderPortfolioRiskPreview(rows,equity,holdingsValue);
+}
+
+function renderPortfolioRiskPreview(rows,equity,holdingsValue){
+  const safeEquity=Number(equity||0);
+  const cash=Number(state.cash||0);
+  const exposure=safeEquity>0?Number(holdingsValue||0)/safeEquity*100:0;
+  const priced=rows.filter(x=>x.marketValue!=null);
+  const unpriced=rows.filter(x=>x.marketValue==null);
+  const totalCost=rows.reduce((sum,x)=>sum+Number(x.qty||0)*Number(x.avg||0),0);
+  const unpricedCost=unpriced.reduce((sum,x)=>sum+Number(x.qty||0)*Number(x.avg||0),0);
+  const coverage=totalCost>0?Math.max(0,Math.min(100,(totalCost-unpricedCost)/totalCost*100)):100;
+  const weights=priced.map(x=>({
+    symbol:x.symbol,
+    value:Number(x.marketValue||0),
+    weight:safeEquity>0?Number(x.marketValue||0)/safeEquity*100:0
+  })).sort((a,b)=>b.weight-a.weight);
+  const largest=weights[0]||null;
+  const top3=weights.slice(0,3).reduce((sum,x)=>sum+x.weight,0);
+  const reserveTarget=safeEquity*Number(state.reserve||0)/100;
+  const reserveShortfall=Math.max(0,reserveTarget-cash);
+  const totalTarget=(state.watchlist||[]).reduce((sum,s)=>sum+Number(state.allocations[s]||0),0);
+  const maxTarget=100-Number(state.reserve||0);
+  const status=unpriced.length?"INCOMPLETE":(reserveShortfall>0||totalTarget>maxTarget+1e-9?"ATTENTION":"OK");
+
+  const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+  setText("portfolioRiskStatus",status);
+  setText("portfolioExposure",exposure.toFixed(1)+"%");
+  setText("portfolioCoverage",coverage.toFixed(1)+"%");
+  setText("portfolioLargest",largest?largest.symbol+" · "+largest.weight.toFixed(1)+"%":"—");
+  setText("portfolioTop3",top3.toFixed(1)+"%");
+  setText("portfolioReserveGap",reserveShortfall.toLocaleString(undefined,{maximumFractionDigits:0}));
+  setText("cashWeight",(safeEquity>0?cash/safeEquity*100:0).toFixed(1)+"%");
+  setText("cashReserveTarget",reserveTarget.toLocaleString(undefined,{maximumFractionDigits:0}));
+  setText("portfolioUnpriced",String(unpriced.length));
+
+  const currentBySymbol={};
+  rows.forEach(x=>{
+    if(x.marketValue==null){
+      currentBySymbol[x.symbol]=null;
+    }else if(currentBySymbol[x.symbol]!==null){
+      currentBySymbol[x.symbol]=Number(currentBySymbol[x.symbol]||0)+Number(x.marketValue||0);
+    }
+  });
+  const drift=document.getElementById("portfolioDrift");
+  if(drift){
+    drift.innerHTML=(state.watchlist||[]).map(symbol=>{
+      const target=Number(state.allocations[symbol]||0);
+      const current=currentBySymbol[symbol]===undefined?0:currentBySymbol[symbol];
+      if(current===null){
+        return '<div class="gate"><span>'+escapeHtml(symbol)+' · objetivo '+target.toFixed(1)+'%</span><span class="wait">SIN PRECIO</span></div>';
+      }
+      const actual=safeEquity>0?Number(current)/safeEquity*100:0;
+      const gap=safeEquity*target/100-Number(current);
+      const driftPp=actual-target;
+      return '<div class="gate"><span><b>'+escapeHtml(symbol)+'</b> · '
+        +actual.toFixed(1)+'% actual / '+target.toFixed(1)+'% objetivo'
+        +'<br><span class="muted">Desvío '+(driftPp>=0?"+":"")+driftPp.toFixed(1)+' pp</span></span>'
+        +'<span class="'+(Math.abs(driftPp)<1?"pass":"wait")+'">'
+        +(gap>=0?"+":"")+gap.toLocaleString(undefined,{maximumFractionDigits:0})+' USD</span></div>';
     }).join("");
   }
 }

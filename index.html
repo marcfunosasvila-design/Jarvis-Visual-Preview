@@ -37,10 +37,11 @@
 </section>
 
 <section id="mercado" class="panel">
-<div class="seg"><button class="active" data-market-mode="oficial">V6 OFICIAL</button><button data-market-mode="top500">TOP 500</button><button data-market-mode="scanner">SCANNER</button></div>
+<div class="seg"><button class="active" data-market-mode="oficial">V6 OFICIAL</button><button data-market-mode="top500">TOP 500</button><button data-market-mode="scanner">SCANNER</button><button data-market-mode="desk">ASSET DESK</button></div>
 <div id="market-oficial" class="subpanel active"><div class="card"><div class="market-name">BTC + SOL</div><p class="muted">Únicos activos con V6 oficial congelada. El detalle real mostrará los 7 gates por activo.</p><div class="gate"><span>BTC/USDT</span><span class="pass">V6 OFICIAL</span></div><div class="gate"><span>SOL/USDT</span><span class="pass">V6 OFICIAL</span></div></div></div>
 <div id="market-top500" class="subpanel"><div class="explorer-tools"><input id="marketSearch" placeholder="Buscar ETH, XRP, Cardano…"><button id="loadMarket">CARGAR TOP 500</button></div><div class="watchlist" id="watchlistChips"></div><div id="marketStatus" class="muted" style="margin:9px 0">Pulsa cargar para consultar mercado público.</div><div class="table-wrap"><table class="market-table"><thead><tr><th>#</th><th>Activo</th><th>Symbol</th><th>Precio</th><th>24h</th><th>Estrategia</th><th></th></tr></thead><tbody id="marketBody"></tbody></table></div></div>
 <div id="market-scanner" class="subpanel"><div class="section">UNIVERSE R1 · TOP 500</div><div class="card"><p class="muted">Snapshot versionado del Top 500 + mercados spot/USDT públicos de Bitget. Los tickers duplicados se consideran ambiguos y quedan fuera de la selección automática. La app real archiva cada snapshot por SHA-256 para conservar la identidad del candidato.</p><div class="gate"><span>Identidad CoinGecko</span><span class="pass">ID + SHA</span></div><div class="gate"><span>Tickers duplicados</span><span class="wait">EXCLUIR AUTO</span></div><div class="gate"><span>Filtros mínimos</span><span class="pass">CAP · VOLUMEN · TURNOVER</span></div></div><div class="section">RESEARCH ROUTER</div><div class="card"><p class="muted">Clasifica activos investigables por familia. La puntuación es prioridad de research, no recomendación de inversión.</p><div class="grid4"><div class="mini"><div class="k">Analizados</div><div class="v" id="scanAssets">0</div></div><div class="mini"><div class="k">Momentum</div><div class="v" id="scanMomentum">0</div></div><div class="mini"><div class="k">Breakout</div><div class="v" id="scanBreakout">0</div></div><div class="mini"><div class="k">Trend</div><div class="v" id="scanTrend">0</div></div></div><button id="runScanner" class="save">EJECUTAR SCANNER</button><div id="scannerStatus" class="muted" style="margin:9px 0">Sandbox pausado.</div></div><div class="section">AUTO SCOUT · DEMO</div><div class="card"><div class="grid3"><div class="mini"><div class="k">Lote máximo</div><div class="v">12</div></div><div class="mini"><div class="k">Máx./familia</div><div class="v">3</div></div><div class="mini"><div class="k">Asignación capital</div><div class="v">0%</div></div></div><p class="muted" style="margin-top:10px">La app real excluye watchlist/pipeline, selecciona solo candidatos elegibles y conserva CoinGecko ID + hash Universe. Ponerlos en pipeline solo crea jobs; no descarga datos, no hace backtest y no aprueba Paper.</p></div><div class="table-wrap" style="margin-top:10px"><table class="market-table"><thead><tr><th>#</th><th>Activo</th><th>24h</th><th>Turnover</th><th>Familia research</th><th>Estado</th></tr></thead><tbody id="scannerBody"></tbody></table></div></div>
+<div id="market-desk" class="subpanel"><div class="section">ASSET DESK R1 · DEMO</div><div class="card"><p class="muted">Vista unificada local: watchlist + cartera + research simulado + Paper simulado. La app real añade CoinGecko ID, Universe SHA, Research Lineage y evidencia completa.</p><div class="grid3"><div class="mini"><div class="k">Seguidos</div><div class="v" id="deskTracked">0</div></div><div class="mini"><div class="k">En cartera</div><div class="v" id="deskPortfolio">0</div></div><div class="mini"><div class="k">Research</div><div class="v" id="deskResearch">0</div></div></div><div class="grid3" style="margin-top:8px"><div class="mini"><div class="k">Review</div><div class="v" id="deskReview">0</div></div><div class="mini"><div class="k">Paper</div><div class="v" id="deskPaper">0</div></div><div class="mini"><div class="k">Ambiguos</div><div class="v" id="deskAmbiguous">0</div></div></div><div class="field" style="margin-top:12px"><label>Abrir ficha</label><select id="assetDeskSelect"></select></div><div id="assetDeskDetail" style="margin-top:10px"></div></div></div>
 </section>
 
 <section id="cartera" class="panel">
@@ -87,7 +88,7 @@
 const defaultState={sandbox:false,factory:false,capital:10000,cash:10000,reserve:20,maxPositions:5,watchlist:["BTC","SOL"],assignments:{BTC:"V6_OFFICIAL_LOCKED",SOL:"V6_OFFICIAL_LOCKED"},allocations:{BTC:40,SOL:40},holdings:[],pipelineJobs:[],experiments:[],robustnessRuns:[],approvals:[]};
 let state={...defaultState,...JSON.parse(localStorage.getItem("jarvisPreviewState")||"{}")};if(state.cash==null)state.cash=Number(state.capital||0);state.assignments={...defaultState.assignments,...(state.assignments||{})};state.allocations={...defaultState.allocations,...(state.allocations||{})};state.holdings=Array.isArray(state.holdings)?state.holdings:[];state.pipelineJobs=Array.isArray(state.pipelineJobs)?state.pipelineJobs:[];state.experiments=Array.isArray(state.experiments)?state.experiments:[];state.robustnessRuns=Array.isArray(state.robustnessRuns)?state.robustnessRuns:[];state.approvals=Array.isArray(state.approvals)?state.approvals:[];state.watchlist=[...new Set(["BTC","SOL",...(state.watchlist||[])])];
 function persist(){localStorage.setItem("jarvisPreviewState",JSON.stringify(state));renderState();renderOperationalState();}
-function renderState(){document.getElementById("sandboxPill").textContent=state.sandbox?"SANDBOX · ACTIVO":"SANDBOX · PAUSADO";document.getElementById("sandboxPill").className="pill "+(state.sandbox?"good":"warn");document.getElementById("sandboxToggle").textContent=state.sandbox?"⏸ PAUSAR SANDBOX":"▶ INICIAR SANDBOX";document.getElementById("capitalMetric").textContent=Number(state.capital).toLocaleString();document.getElementById("reserveMetric").textContent=state.reserve+"%";document.getElementById("deployMetric").textContent=(state.capital*(1-state.reserve/100)).toLocaleString(undefined,{maximumFractionDigits:0});document.getElementById("positionsMetric").textContent=state.maxPositions;document.getElementById("cashDemo").textContent=Number(state.cash||0).toLocaleString(undefined,{maximumFractionDigits:2});document.getElementById("capitalInput").value=state.capital;document.getElementById("cashInput").value=state.cash;document.getElementById("reserveInput").value=state.reserve;document.getElementById("positionsInput").value=state.maxPositions;const chips=state.watchlist.map(s=>'<span class="chip">'+s+'</span>').join("");document.getElementById("watchlistChips").innerHTML=chips;document.getElementById("portfolioWatchlist").innerHTML=chips;const lab=state.watchlist.filter(s=>!["BTC","SOL"].includes(s));document.getElementById("labAsset").innerHTML=lab.length?lab.map(s=>'<option>'+s+'</option>').join(""):'<option disabled>Añade activos desde Mercado</option>';const alloc=document.getElementById("allocationEditor");alloc.innerHTML=state.watchlist.map(s=>'<div class="gate"><span>'+s+' <span class="muted">'+(state.assignments[s]==="V6_OFFICIAL_LOCKED"?"V6":"Sandbox")+'</span></span><span><input style="width:74px;border:1px solid #213249;background:#07101a;color:white;border-radius:8px;padding:6px" type="number" min="0" max="100" step="1" value="'+Number(state.allocations[s]||0)+'" onchange="setAlloc(\''+s+'\',this.value)"> %</span></div>').join("");const total=state.watchlist.reduce((a,s)=>a+Number(state.allocations[s]||0),0),max=100-Number(state.reserve);const status=document.getElementById("allocationStatus");status.textContent=total.toFixed(1)+"% asignado · máximo "+max.toFixed(1)+"%";status.style.color=total>max?"#ff7b8f":"#61e0ae";const jobs=state.pipelineJobs||[];document.getElementById("pipeQueued").textContent=jobs.filter(j=>j.stage==="QUEUED").length;document.getElementById("pipeReady").textContent=jobs.filter(j=>j.stage==="DATA_READY").length;document.getElementById("pipeBacktest").textContent=jobs.filter(j=>j.stage==="BACKTEST_PENDING").length;document.getElementById("pipeFailed").textContent=jobs.filter(j=>j.stage==="FAILED").length;document.getElementById("pipelineStatus").textContent=jobs.length?jobs.length+" jobs de research":"Sin jobs.";document.getElementById("pipelineList").innerHTML=jobs.slice().reverse().map(j=>'<div class="gate"><span>'+j.symbol+' · '+j.family.replace("RESEARCH_","")+'</span><span class="'+(j.stage==="DATA_READY"||j.stage==="BACKTEST_PENDING"?"pass":"wait")+'">'+j.stage+'</span></div>').join("");const exps=state.experiments||[];document.getElementById("expCount").textContent=exps.length;document.getElementById("expRejected").textContent=exps.filter(e=>e.stage==="REJECTED").length;document.getElementById("expRobust").textContent=exps.filter(e=>e.stage==="ROBUSTNESS_PENDING").length;document.getElementById("experimentStatus").textContent=exps.length?exps.length+" experimentos DEMO":"Sin experimentos.";document.getElementById("experimentList").innerHTML=exps.slice().reverse().map(e=>'<div class="gate"><span>'+e.symbol+' · '+e.template+'</span><span class="'+(e.stage==="ROBUSTNESS_PENDING"?"pass":"wait")+'">'+e.stage+' · DEMO</span></div><div class="muted" style="font-size:10px;margin:-3px 0 8px">Dev '+e.dev+' · Val '+e.val+' · Holdout '+e.holdout+'</div>').join("");const robs=state.robustnessRuns||[];document.getElementById("robCount").textContent=robs.length;document.getElementById("robRejected").textContent=robs.filter(r=>r.stage==="ROBUSTNESS_REJECTED").length;document.getElementById("robReview").textContent=robs.filter(r=>r.stage==="SANDBOX_PAPER_REVIEW_PENDING").length;document.getElementById("robustnessStatus").textContent=robs.length?robs.length+" stress runs DEMO":"Sin stress runs.";document.getElementById("robustnessList").innerHTML=robs.slice().reverse().map(r=>'<div class="gate"><span>'+r.symbol+' · '+r.template+'</span><span class="'+(r.stage==="SANDBOX_PAPER_REVIEW_PENDING"?"pass":"wait")+'">'+r.stage+' · DEMO</span></div>').join("");const approvals=state.approvals||[];document.getElementById("approvalCount").textContent=approvals.length;document.getElementById("approvalActive").textContent=approvals.filter(a=>a.active).length;document.getElementById("approvalStatus").textContent=approvals.length?approvals.length+" aprobaciones DEMO":"Sin aprobaciones.";document.getElementById("approvalList").innerHTML=approvals.slice().reverse().map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">PAPER ACTIVO · DEMO</span></div>').join("");renderPortfolioPreview();}
+function renderState(){document.getElementById("sandboxPill").textContent=state.sandbox?"SANDBOX · ACTIVO":"SANDBOX · PAUSADO";document.getElementById("sandboxPill").className="pill "+(state.sandbox?"good":"warn");document.getElementById("sandboxToggle").textContent=state.sandbox?"⏸ PAUSAR SANDBOX":"▶ INICIAR SANDBOX";document.getElementById("capitalMetric").textContent=Number(state.capital).toLocaleString();document.getElementById("reserveMetric").textContent=state.reserve+"%";document.getElementById("deployMetric").textContent=(state.capital*(1-state.reserve/100)).toLocaleString(undefined,{maximumFractionDigits:0});document.getElementById("positionsMetric").textContent=state.maxPositions;document.getElementById("cashDemo").textContent=Number(state.cash||0).toLocaleString(undefined,{maximumFractionDigits:2});document.getElementById("capitalInput").value=state.capital;document.getElementById("cashInput").value=state.cash;document.getElementById("reserveInput").value=state.reserve;document.getElementById("positionsInput").value=state.maxPositions;const chips=state.watchlist.map(s=>'<span class="chip">'+s+'</span>').join("");document.getElementById("watchlistChips").innerHTML=chips;document.getElementById("portfolioWatchlist").innerHTML=chips;const lab=state.watchlist.filter(s=>!["BTC","SOL"].includes(s));document.getElementById("labAsset").innerHTML=lab.length?lab.map(s=>'<option>'+s+'</option>').join(""):'<option disabled>Añade activos desde Mercado</option>';const alloc=document.getElementById("allocationEditor");alloc.innerHTML=state.watchlist.map(s=>'<div class="gate"><span>'+s+' <span class="muted">'+(state.assignments[s]==="V6_OFFICIAL_LOCKED"?"V6":"Sandbox")+'</span></span><span><input style="width:74px;border:1px solid #213249;background:#07101a;color:white;border-radius:8px;padding:6px" type="number" min="0" max="100" step="1" value="'+Number(state.allocations[s]||0)+'" onchange="setAlloc(\''+s+'\',this.value)"> %</span></div>').join("");const total=state.watchlist.reduce((a,s)=>a+Number(state.allocations[s]||0),0),max=100-Number(state.reserve);const status=document.getElementById("allocationStatus");status.textContent=total.toFixed(1)+"% asignado · máximo "+max.toFixed(1)+"%";status.style.color=total>max?"#ff7b8f":"#61e0ae";const jobs=state.pipelineJobs||[];document.getElementById("pipeQueued").textContent=jobs.filter(j=>j.stage==="QUEUED").length;document.getElementById("pipeReady").textContent=jobs.filter(j=>j.stage==="DATA_READY").length;document.getElementById("pipeBacktest").textContent=jobs.filter(j=>j.stage==="BACKTEST_PENDING").length;document.getElementById("pipeFailed").textContent=jobs.filter(j=>j.stage==="FAILED").length;document.getElementById("pipelineStatus").textContent=jobs.length?jobs.length+" jobs de research":"Sin jobs.";document.getElementById("pipelineList").innerHTML=jobs.slice().reverse().map(j=>'<div class="gate"><span>'+j.symbol+' · '+j.family.replace("RESEARCH_","")+'</span><span class="'+(j.stage==="DATA_READY"||j.stage==="BACKTEST_PENDING"?"pass":"wait")+'">'+j.stage+'</span></div>').join("");const exps=state.experiments||[];document.getElementById("expCount").textContent=exps.length;document.getElementById("expRejected").textContent=exps.filter(e=>e.stage==="REJECTED").length;document.getElementById("expRobust").textContent=exps.filter(e=>e.stage==="ROBUSTNESS_PENDING").length;document.getElementById("experimentStatus").textContent=exps.length?exps.length+" experimentos DEMO":"Sin experimentos.";document.getElementById("experimentList").innerHTML=exps.slice().reverse().map(e=>'<div class="gate"><span>'+e.symbol+' · '+e.template+'</span><span class="'+(e.stage==="ROBUSTNESS_PENDING"?"pass":"wait")+'">'+e.stage+' · DEMO</span></div><div class="muted" style="font-size:10px;margin:-3px 0 8px">Dev '+e.dev+' · Val '+e.val+' · Holdout '+e.holdout+'</div>').join("");const robs=state.robustnessRuns||[];document.getElementById("robCount").textContent=robs.length;document.getElementById("robRejected").textContent=robs.filter(r=>r.stage==="ROBUSTNESS_REJECTED").length;document.getElementById("robReview").textContent=robs.filter(r=>r.stage==="SANDBOX_PAPER_REVIEW_PENDING").length;document.getElementById("robustnessStatus").textContent=robs.length?robs.length+" stress runs DEMO":"Sin stress runs.";document.getElementById("robustnessList").innerHTML=robs.slice().reverse().map(r=>'<div class="gate"><span>'+r.symbol+' · '+r.template+'</span><span class="'+(r.stage==="SANDBOX_PAPER_REVIEW_PENDING"?"pass":"wait")+'">'+r.stage+' · DEMO</span></div>').join("");const approvals=state.approvals||[];document.getElementById("approvalCount").textContent=approvals.length;document.getElementById("approvalActive").textContent=approvals.filter(a=>a.active).length;document.getElementById("approvalStatus").textContent=approvals.length?approvals.length+" aprobaciones DEMO":"Sin aprobaciones.";document.getElementById("approvalList").innerHTML=approvals.slice().reverse().map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">PAPER ACTIVO · DEMO</span></div>').join("");renderPortfolioPreview();renderAssetDeskPreview();}
 function renderOperationalState(){const activeRows=(state.approvals||[]).filter(a=>a.active);const active=activeRows.length;const paper=!state.sandbox?"PAUSED":active===0?"IDLE":"HEALTHY";const pill=document.getElementById("paperPill");if(pill){pill.textContent="PAPER · "+paper;pill.className="pill "+(paper==="HEALTHY"?"good":"warn")}const sys=document.getElementById("systemPaper");if(sys)sys.textContent=paper;const approvals=document.getElementById("systemApprovals");if(approvals)approvals.textContent=active;const factoryOn=!!state.factory&&!!state.sandbox;const fp=document.getElementById("factoryPill");if(fp){fp.textContent="FACTORY · "+(factoryOn?"ON":"OFF");fp.className="pill "+(factoryOn?"good":"warn")}const fs=document.getElementById("factoryState");if(fs)fs.textContent=factoryOn?"ON":"OFF";const sf=document.getElementById("systemFactory");if(sf)sf.textContent=factoryOn?"ON":"OFF";const ft=document.getElementById("factoryToggle");if(ft)ft.textContent=factoryOn?"⏸ PAUSAR AUTO RESEARCH":"▶ ACTIVAR AUTO RESEARCH";const fstatus=document.getElementById("factoryStatus");if(fstatus)fstatus.textContent=!state.sandbox?"Requiere Sandbox activo.":factoryOn?"Factory DEMO activa · hard stop en PAPER REVIEW.":"Factory pausada.";const supervisors=document.getElementById("systemSupervisors");if(supervisors)supervisors.textContent=(2+(state.sandbox?1:0)+(factoryOn?1:0))+"/4";const tradeStatus=document.getElementById("tradePaperStatus");if(tradeStatus)tradeStatus.textContent=paper;const tradeApprovals=document.getElementById("tradeApprovals");if(tradeApprovals)tradeApprovals.textContent=active;const list=document.getElementById("tradeApprovalList");if(list)list.innerHTML=activeRows.length?activeRows.map(a=>'<div class="gate"><span>'+a.symbol+' · '+a.template+'</span><span class="pass">'+Number(a.allocation||0).toFixed(1)+'% PAPER</span></div>').join(""):'<div class="muted">No hay estrategias Sandbox Paper aprobadas.</div>';}
 document.getElementById("sandboxToggle").onclick=()=>{state.sandbox=!state.sandbox;if(!state.sandbox)state.factory=false;persist();renderScanner()};
 document.getElementById("factoryToggle").onclick=()=>{if(!state.sandbox){alert("Inicia el Sandbox primero.");return}state.factory=!state.factory;persist()};
@@ -116,6 +117,100 @@ function escapeHtml(value){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
+}
+
+function buildDemoAssetDeskRows(){
+  const bySymbol={};
+  marketRows.forEach(row=>{
+    const symbol=String(row.symbol||"").toUpperCase();
+    if(!bySymbol[symbol])bySymbol[symbol]=[];
+    bySymbol[symbol].push(row);
+  });
+  const symbols=[...new Set(["BTC","SOL",...(state.watchlist||[]),(state.holdings||[]).map(x=>x.symbol)])];
+  return symbols.filter(Boolean).map(symbol=>{
+    const holdings=(state.holdings||[]).filter(x=>String(x.symbol||"").toUpperCase()===symbol);
+    const stableIds=[...new Set(holdings.map(x=>String(x.id||"")).filter(Boolean))];
+    const marketMatches=bySymbol[symbol]||[];
+    let assetId=null,market=null,identity="SIN SNAPSHOT";
+    if(stableIds.length===1){
+      assetId=stableIds[0];
+      market=marketRows.find(x=>String(x.id)===assetId)||null;
+      identity=market?"ID EXACTO":"ID SIN PRECIO";
+    }else if(stableIds.length>1){
+      identity="AMBIGUO · VARIOS ID";
+    }else if(marketMatches.length===1){
+      market=marketMatches[0];
+      assetId=String(market.id||"")||null;
+      identity="TICKER ÚNICO";
+    }else if(marketMatches.length>1){
+      identity="AMBIGUO · TICKER";
+    }
+    const holding=assetId?holdings.find(x=>String(x.id)===assetId):(holdings.length===1?holdings[0]:null);
+    const price=market&&market.current_price!=null?Number(market.current_price):null;
+    const qty=holding?Number(holding.qty||0):0;
+    const avg=holding?Number(holding.avg||0):null;
+    const value=price==null||!holding?null:qty*price;
+    const pnl=value==null||avg==null?null:value-qty*avg;
+    const job=(state.pipelineJobs||[]).slice().reverse().find(x=>String(x.symbol||"").toUpperCase()===symbol)||null;
+    const robustness=(state.robustnessRuns||[]).slice().reverse().find(x=>String(x.symbol||"").toUpperCase()===symbol)||null;
+    const approval=(state.approvals||[]).slice().reverse().find(x=>String(x.symbol||"").toUpperCase()===symbol&&x.active)||null;
+    let status="WATCH ONLY";
+    if(["BTC","SOL"].includes(symbol))status="V6 OFICIAL";
+    else if(approval)status="SANDBOX PAPER";
+    else if(robustness&&robustness.stage==="SANDBOX_PAPER_REVIEW_PENDING")status="PAPER REVIEW";
+    else if(job&&job.stage==="HOLD")status="RESEARCH HOLD";
+    else if(job&&job.stage==="ARCHIVED")status="RESEARCH ARCHIVED";
+    else if(job)status="RESEARCH ACTIVO";
+    else if(holding)status="EN CARTERA";
+    return {
+      symbol,assetId,identity,market,holding,qty,avg,price,value,pnl,job,robustness,approval,status,
+      target:Number(state.allocations[symbol]||0),
+      strategy:["BTC","SOL"].includes(symbol)?"V6_OFFICIAL_LOCKED":(state.assignments[symbol]||"UNASSIGNED")
+    };
+  });
+}
+
+function renderAssetDeskPreview(){
+  const rows=buildDemoAssetDeskRows();
+  const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+  setText("deskTracked",String(rows.length));
+  setText("deskPortfolio",String(rows.filter(x=>!!x.holding).length));
+  setText("deskResearch",String(rows.filter(x=>x.status==="RESEARCH ACTIVO"||x.status==="RESEARCH HOLD").length));
+  setText("deskReview",String(rows.filter(x=>x.status==="PAPER REVIEW").length));
+  setText("deskPaper",String(rows.filter(x=>x.status==="SANDBOX PAPER").length));
+  setText("deskAmbiguous",String(rows.filter(x=>x.identity.includes("AMBIGUO")).length));
+
+  const select=document.getElementById("assetDeskSelect");
+  const detail=document.getElementById("assetDeskDetail");
+  if(!select||!detail)return;
+  const previous=select.value;
+  select.innerHTML=rows.map(x=>'<option value="'+escapeHtml(x.symbol)+'">'+escapeHtml(x.symbol)+' · '+escapeHtml(x.status)+'</option>').join("");
+  if([...select.options].some(o=>o.value===previous))select.value=previous;
+  const selected=rows.find(x=>x.symbol===select.value)||rows[0];
+  if(!selected){
+    detail.innerHTML='<div class="muted">Sin activos.</div>';
+    return;
+  }
+
+  const valueText=selected.value==null?"—":"$"+selected.value.toLocaleString(undefined,{maximumFractionDigits:2});
+  const pnlText=selected.pnl==null?"—":(selected.pnl>=0?"+":"")+selected.pnl.toLocaleString(undefined,{maximumFractionDigits:2})+" USD";
+  const priceText=selected.price==null?"—":"$"+selected.price.toLocaleString(undefined,{maximumSignificantDigits:8});
+  const pipeline=selected.job?selected.job.stage:"—";
+  const family=selected.job?selected.job.family:selected.strategy;
+  const paper=selected.approval?"ACTIVO":"NO";
+
+  detail.innerHTML=
+    '<div class="market-head"><div><div class="market-name">'+escapeHtml(selected.symbol)+'</div><span class="signal">'+escapeHtml(selected.status)+'</span></div><div class="price">'+priceText+'</div></div>'
+    +'<div class="gate"><span>Identidad</span><span class="'+(selected.identity.includes("AMBIGUO")?"wait":"pass")+'">'+escapeHtml(selected.identity)+'</span></div>'
+    +'<div class="gate"><span>CoinGecko ID</span><span>'+escapeHtml(selected.assetId||"—")+'</span></div>'
+    +'<div class="gate"><span>Cantidad cartera</span><span>'+Number(selected.qty||0).toLocaleString(undefined,{maximumFractionDigits:8})+'</span></div>'
+    +'<div class="gate"><span>Valor cartera</span><span>'+valueText+'</span></div>'
+    +'<div class="gate"><span>P&L abierto</span><span class="'+(selected.pnl!=null&&selected.pnl>=0?"pass":"wait")+'">'+pnlText+'</span></div>'
+    +'<div class="gate"><span>Objetivo</span><span>'+selected.target.toFixed(1)+'%</span></div>'
+    +'<div class="gate"><span>Estrategia / familia</span><span>'+escapeHtml(family||"—")+'</span></div>'
+    +'<div class="gate"><span>Pipeline</span><span>'+escapeHtml(pipeline)+'</span></div>'
+    +'<div class="gate"><span>Sandbox Paper</span><span class="'+(paper==="ACTIVO"?"pass":"wait")+'">'+paper+'</span></div>'
+    +'<div class="gate"><span>LIVE</span><span class="pass">OFF</span></div>';
 }
 
 function populateHoldingAssets(){
@@ -335,6 +430,7 @@ function renderMarket(){
       +'</td><td><button onclick="addWatch(\''+s.replaceAll("'","\\'")+'\')" class="control-btn" style="padding:6px 8px">+</button></td></tr>';
   }).join("");
   renderPortfolioPreview();
+  renderAssetDeskPreview();
 }
 
 window.addWatch=s=>{
@@ -348,6 +444,7 @@ window.addWatch=s=>{
 document.getElementById("loadMarket").onclick=loadMarket;
 document.getElementById("marketSearch").oninput=renderMarket;
 document.getElementById("runScanner").onclick=renderScanner;
+document.getElementById("assetDeskSelect").onchange=renderAssetDeskPreview;
 
 let deferredPrompt=null;
 const installBtn=document.getElementById("installBtn");

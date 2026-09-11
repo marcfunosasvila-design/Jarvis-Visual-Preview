@@ -2,8 +2,12 @@
   "name": "JARVIS V6",
   "short_name": "JARVIS",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#060a10",
   "theme_color": "#060a10",
-  "description": "Vista visual de JARVIS V6 forward paper"
+  "description": "Vista visual de JARVIS V6 forward paper",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
 }

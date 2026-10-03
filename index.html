@@ -39,6 +39,7 @@
 </section>
 
 <section id="mercado" class="panel">
+<div class="card" style="margin-bottom:12px"><a href="indicators.html" style="color:var(--cyan);font-weight:900">ABRIR INDICADORES H4 →</a><p class="muted">WaveTrend · EMA200 · MACD · RSI · volumen. Análisis independiente con velas públicas de BTC/SOL.</p></div>
 <div class="seg"><button class="active" data-market-mode="oficial">V6 OFICIAL</button><button data-market-mode="top500">TOP 500</button><button data-market-mode="scanner">SCANNER</button><button data-market-mode="desk">ASSET DESK</button></div>
 <div id="market-oficial" class="subpanel active"><div class="card"><div class="market-name">BTC + SOL</div><p class="muted">Únicos activos con V6 oficial congelada. El detalle real mostrará los 7 gates por activo.</p><div class="gate"><span>BTC/USDT</span><span class="pass">V6 OFICIAL</span></div><div class="gate"><span>SOL/USDT</span><span class="pass">V6 OFICIAL</span></div></div></div>
 <div id="market-top500" class="subpanel"><div class="explorer-tools"><input id="marketSearch" placeholder="Buscar ETH, XRP, Cardano…"><button id="loadMarket">CARGAR TOP 500</button></div><div class="watchlist" id="watchlistChips"></div><div id="marketStatus" class="muted" style="margin:9px 0">Pulsa cargar para consultar mercado público.</div><div class="table-wrap"><table class="market-table"><thead><tr><th>#</th><th>Activo</th><th>Symbol</th><th>Precio</th><th>24h</th><th>Estrategia</th><th></th></tr></thead><tbody id="marketBody"></tbody></table></div></div>
@@ -814,3 +815,4 @@ if("serviceWorker" in navigator){
 </script>
 </body>
 </html>
+
